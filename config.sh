@@ -9,7 +9,8 @@ rm -rf package/kernel/ksmbd \
        feeds/packages/net/ksmbd-tools \
        package/feeds/packages/ksmbd-tools \
        feeds/luci/applications/luci-app-ksmbd \
-       package/feeds/luci/luci-app-ksmbd
+       package/feeds/luci/luci-app-ksmbd \
+       package/lean/autosamba
 touch .config
 sed -i '/^# BEGIN Cloud-N1-OpenWrt custom config$/,/^# END Cloud-N1-OpenWrt custom config$/d' .config
 cat >> .config <<EOF
