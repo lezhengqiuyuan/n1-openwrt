@@ -4,8 +4,12 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR/openwrt"
 # 禁用 ksmbd 及相关包，避免当前内核与 ksmbd 3.5.4 不兼容
-# ksmbd-server、ksmbd-tools 和 autosamba 依赖 kmod-fs-ksmbd，必须一起禁用
-rm -rf package/kernel/ksmbd feeds/packages/net/ksmbd-tools package/feeds/packages/ksmbd-tools
+# ksmbd-server、ksmbd-tools、luci-app-ksmbd 和 autosamba 依赖 kmod-fs-ksmbd，必须一起禁用
+rm -rf package/kernel/ksmbd \
+       feeds/packages/net/ksmbd-tools \
+       package/feeds/packages/ksmbd-tools \
+       feeds/luci/applications/luci-app-ksmbd \
+       package/feeds/luci/luci-app-ksmbd
 touch .config
 sed -i '/^# BEGIN Cloud-N1-OpenWrt custom config$/,/^# END Cloud-N1-OpenWrt custom config$/d' .config
 cat >> .config <<EOF
@@ -14,6 +18,8 @@ cat >> .config <<EOF
 # CONFIG_PACKAGE_kmod-fs-ksmbd is not set
 # CONFIG_PACKAGE_ksmbd-server is not set
 # CONFIG_PACKAGE_ksmbd-tools is not set
+# CONFIG_PACKAGE_luci-app-ksmbd is not set
+# CONFIG_PACKAGE_luci-i18n-ksmbd-zh-cn is not set
 # CONFIG_PACKAGE_autosamba is not set
 
 CONFIG_TARGET_armvirt=y
