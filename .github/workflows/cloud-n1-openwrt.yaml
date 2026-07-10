@@ -17,7 +17,7 @@ on:
     - cron: '30 4 15 * *'
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
@@ -197,28 +197,15 @@ jobs:
             ${{ env.FIRMWARE }}
             ${{ env.PACKAGED_OUTPUTPATH }}
 
-    - name: Check release token
-      id: release_token
-      if: steps.organize.outputs.status == 'success' && steps.package_check.outputs.status == 'success' && github.ref == 'refs/heads/main' && !cancelled()
-      env:
-        ACTIONS_RELEASE_TOKEN: ${{ secrets.actions_release }}
-      run: |
-        if [ -n "${ACTIONS_RELEASE_TOKEN:-}" ]; then
-          echo "status=success" >> $GITHUB_OUTPUT
-        else
-          echo "actions_release is not configured, skip release"
-          echo "status=skip" >> $GITHUB_OUTPUT
-        fi
-
     - name: Create release
-      if: steps.organize.outputs.status == 'success' && steps.package_check.outputs.status == 'success' && steps.release_token.outputs.status == 'success' && !cancelled()
+      if: steps.organize.outputs.status == 'success' && steps.package_check.outputs.status == 'success' && github.ref == 'refs/heads/main' && !cancelled()
       uses: ncipollo/release-action@v1
       with:
         name: ${{ env.DATE }} ❤️ | N1-OpenWrt 自动编译打包
         allowUpdates: true
         tag: ${{ env.tag_name }}
         commit: ${{ github.sha }}
-        token: ${{ secrets.actions_release }}
+        token: ${{ github.token }}
         body: |
           编译使用版本:
           ${{ env.useVersionInfo }}
@@ -230,10 +217,10 @@ jobs:
         artifacts: "${{ env.FIRMWARE }}/*.*,${{ env.PACKAGED_OUTPUTPATH }}/*.*"
 
     - name: Remove old Releases
-      if: steps.organize.outputs.status == 'success' && steps.package_check.outputs.status == 'success' && steps.release_token.outputs.status == 'success' && !cancelled()
+      if: steps.organize.outputs.status == 'success' && steps.package_check.outputs.status == 'success' && github.ref == 'refs/heads/main' && !cancelled()
       uses: dev-drprasad/delete-older-releases@v0.3.4
       with:
         keep_latest: 10
         delete_tags: true
       env:
-        GITHUB_TOKEN: ${{ secrets.actions_release }}
+        GITHUB_TOKEN: ${{ github.token }}
